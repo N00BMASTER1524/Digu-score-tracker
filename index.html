@@ -458,14 +458,16 @@
             gsap.to("#clearDataModal", { opacity: 0, duration: 0.5, onComplete: () => document.getElementById("clearDataModal").style.display = "none" });  // Hide the modal with animation
         }
 
+        // Dark Mode Toggle Function
         function toggleDarkMode() {
-            const isDarkMode = document.body.classList.contains('dark-mode');
+            const isDarkMode = document.body.classList.toggle('dark-mode');
+            const toggleButton = document.getElementById('darkModeToggle');
             if (isDarkMode) {
-                document.body.classList.remove('dark-mode');
+                toggleButton.innerHTML = "Switch to Light Mode";
             } else {
-                document.body.classList.add('dark-mode');
+                toggleButton.innerHTML = "Switch to Dark Mode";
             }
-            localStorage.setItem('darkMode', !isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode);
 
             // Update background shapes color
             const shapes = document.querySelectorAll('.animated-bg .shape');
