@@ -6,27 +6,70 @@
     <title>Score Tracker</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <style>
+        /* Ensure html and body take up full height */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f9f9f9;
             text-align: center;
             padding: 20px;
             transition: background-color 0.3s, color 0.3s;
+            position: relative;
         }
+
+        /* Animated Background */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .animated-bg .shape {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .animated-bg .circle {
+            border-radius: 50%;
+        }
+
+        .animated-bg .line {
+            width: 2px;
+            height: 100px;
+        }
+
+        .dark-mode .animated-bg .shape {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dark Mode Styles */
         .dark-mode {
             background-color: #121212;
             color: white;
         }
+
         h2 {
             color: #333;
             font-size: 36px;
             letter-spacing: 1px;
             animation: fadeIn 1s ease-in-out;
         }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
         input, button {
             padding: 12px;
             margin: 8px;
@@ -35,23 +78,28 @@
             transition: all 0.3s ease;
             font-size: 16px;
         }
+
         button {
             background-color: #007BFF;
             color: white;
             cursor: pointer;
             transform: scale(1);
         }
+
         button:hover {
             background-color: #0056b3;
             transform: scale(1.05);
         }
+
         .dark-mode button {
             background-color: #444;
             color: white;
         }
+
         .dark-mode button:hover {
             background-color: #666;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -62,37 +110,45 @@
             overflow: hidden;
             animation: slideUp 0.5s ease-in-out;
         }
+
         .dark-mode table {
             background-color: #333;
             color: white;
         }
+
         @keyframes slideUp {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
             transition: background-color 0.3s, color 0.3s;
         }
+
         th {
             background-color: #007BFF;
             color: white;
         }
+
         .dark-mode th {
             background-color: #444;
             color: white;
         }
+
         input[type="number"] {
             width: 60px;
             text-align: center;
             transition: background-color 0.3s;
         }
+
         .dark-mode input[type="number"] {
             background-color: #555;
             color: white;
         }
+
         #darkModeToggle {
             margin-top: 20px;
             padding: 12px;
@@ -102,6 +158,7 @@
             border-radius: 5px;
             transition: background-color 0.3s ease, transform 0.3s ease;
         }
+
         #darkModeToggle:hover {
             background-color: #555;
             transform: scale(1.05);
@@ -114,6 +171,7 @@
             align-items: center;
             margin-bottom: 20px;
         }
+
         #inputContainer input {
             width: 250px;
         }
@@ -131,6 +189,7 @@
             align-items: center;
             z-index: 9999;
         }
+
         #clearDataModal .modalContent {
             background-color: white;
             padding: 20px;
@@ -138,7 +197,14 @@
             text-align: center;
             max-width: 300px;
             width: 100%;
+            color: #333; /* Default text color */
         }
+
+        .dark-mode #clearDataModal .modalContent {
+            background-color: #333; /* Dark mode background */
+            color: white; /* Dark mode text color */
+        }
+
         #clearDataModal .modalContent button {
             margin: 10px;
         }
@@ -149,6 +215,7 @@
                 overflow-x: auto;
                 width: 100%;
             }
+
             table {
                 min-width: 600px; /* Ensures the table is wide enough to scroll */
             }
@@ -156,6 +223,9 @@
     </style>
 </head>
 <body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+
     <h2>Player Score Tracker</h2>
     <button id="startButton" onclick="startGame()">Start Game</button>
     <button id="endButton" onclick="endGame()" style="display: none;">End Game</button>
@@ -209,6 +279,59 @@
         let gameStarted = false;
         let players = [];
 
+        // GSAP Animated Background
+        function createAnimatedBackground() {
+            const bg = document.querySelector('.animated-bg');
+            const colors = {
+                light: 'rgba(0, 0, 0, 0.1)',
+                dark: 'rgba(255, 255, 255, 0.1)'
+            };
+
+            // Create circles
+            for (let i = 0; i < 15; i++) {
+                const circle = document.createElement('div');
+                circle.classList.add('shape', 'circle');
+                circle.style.width = `${Math.random() * 50 + 20}px`;
+                circle.style.height = circle.style.width;
+                circle.style.left = `${Math.random() * 100}%`;
+                circle.style.top = `${Math.random() * 100}%`;
+                circle.style.backgroundColor = document.body.classList.contains('dark-mode') ? colors.dark : colors.light;
+                bg.appendChild(circle);
+
+                // GSAP Animation for circles
+                gsap.to(circle, {
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 200 - 100,
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 10 + 5, // Slower animation
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'power1.inOut'
+                });
+            }
+
+            // Create lines
+            for (let i = 0; i < 10; i++) {
+                const line = document.createElement('div');
+                line.classList.add('shape', 'line');
+                line.style.left = `${Math.random() * 100}%`;
+                line.style.top = `${Math.random() * 100}%`;
+                line.style.backgroundColor = document.body.classList.contains('dark-mode') ? colors.dark : colors.light;
+                bg.appendChild(line);
+
+                // GSAP Animation for lines
+                gsap.to(line, {
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 200 - 100,
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 10 + 5, // Slower animation
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'power1.inOut'
+                });
+            }
+        }
+
         // Load saved game data from localStorage
         function loadGameData() {
             const savedData = JSON.parse(localStorage.getItem('gameData'));
@@ -258,76 +381,109 @@
         }
 
         function addPlayer() {
-            const playerName = document.getElementById("playerName").value.trim();
-            if (playerName && players.length < 4) {
-                players.push({ name: playerName, scores: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] });
-                addPlayerToTable(playerName);
-                document.getElementById("playerName").value = "";
+            let playerName = document.getElementById('playerName').value;
+            if (!playerName || players.length >= 4) return;
+
+            players.push({ name: playerName, scores: Array(10).fill('') });
+
+            addPlayerToTable(playerName, Array(10).fill(''));
+
+            // Save to localStorage
+            saveGameData();
+
+            // Clear the input after adding player
+            document.getElementById('playerName').value = '';
+
+            // Disable the add player button when 4 players have been added
+            if (players.length >= 4) {
+                document.getElementById('addPlayerButton').disabled = true;
+            }
+
+            // Hide error message if players are enough
+            if (players.length === 4) {
                 document.getElementById("errorMessage").style.display = "none";
             }
         }
 
-        function addPlayerToTable(playerName, scores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) {
-            const tableBody = document.getElementById("scoreTable").getElementsByTagName("tbody")[0];
-            const row = tableBody.insertRow();
-            const cell1 = row.insertCell(0);
-            cell1.innerHTML = playerName;
+        function addPlayerToTable(playerName, scores) {
+            let table = document.getElementById('scoreTable').getElementsByTagName('tbody')[0];
+            let row = table.insertRow();
+            let nameCell = row.insertCell(0);
+            nameCell.innerHTML = playerName;
+
             for (let i = 0; i < 10; i++) {
-                const cell = row.insertCell(i + 1);
-                const input = document.createElement("input");
-                input.type = "number";
-                input.value = scores[i];
-                input.addEventListener("input", function () {
-                    updateTotal(row);
-                });
-                cell.appendChild(input);
+                let scoreCell = row.insertCell(i + 1);
+                scoreCell.innerHTML = `<input type="number" value="${scores[i]}" onchange="updateScore(this, ${table.rows.length - 1}, ${i})">`;
             }
-            updateTotal(row);
+
+            let totalCell = row.insertCell(11);
+            totalCell.innerHTML = scores.reduce((acc, score) => acc + (parseInt(score) || 0), 0);
         }
 
-        function updateTotal(row) {
-            let total = 0;
-            for (let i = 1; i <= 10; i++) {
-                const score = row.cells[i].firstElementChild.value;
-                total += parseInt(score) || 0;
-            }
-            row.cells[11].innerHTML = total;
+        function updateScore(input, rowIndex, roundIndex) {
+            let table = document.getElementById('scoreTable').getElementsByTagName('tbody')[0];
+            let row = table.rows[rowIndex];
+            let playerName = row.cells[0].innerText;
+            let newScore = input.value;
+
+            players[rowIndex].scores[roundIndex] = newScore;
+
+            // Save to localStorage
+            saveGameData();
+
+            // Update total score
+            row.cells[11].innerText = players[rowIndex].scores.reduce((acc, score) => acc + (parseInt(score) || 0), 0);
+        }
+
+        function saveGameData() {
+            localStorage.setItem('gameData', JSON.stringify({ players }));
         }
 
         function endGame() {
-            localStorage.removeItem('gameData');
-            localStorage.removeItem('gameState');
-            location.reload();
-        }
-
-        function confirmClearData() {
-            document.getElementById('clearDataModal').style.display = 'flex';
+            // Clear data
+            localStorage.clear();
+            location.reload(); // Reload the page to reset everything
         }
 
         function clearData() {
-            players = [];
-            localStorage.removeItem('gameData');
-            document.getElementById('scoreTable').getElementsByTagName('tbody')[0].innerHTML = '';
-            document.getElementById('clearDataModal').style.display = 'none';
+            localStorage.clear();
+            location.reload(); // Reload the page to reset everything
+        }
+
+        function confirmClearData() {
+            gsap.to("#clearDataModal", { display: "flex", opacity: 1, duration: 0.5 });  // Show the modal with animation
         }
 
         function closeModal() {
-            document.getElementById('clearDataModal').style.display = 'none';
+            gsap.to("#clearDataModal", { opacity: 0, duration: 0.5, onComplete: () => document.getElementById("clearDataModal").style.display = "none" });  // Hide the modal with animation
         }
 
-        // Dark Mode Toggle Function
         function toggleDarkMode() {
-            const darkModeEnabled = document.body.classList.toggle('dark-mode');
-            const toggleButton = document.getElementById('darkModeToggle');
-            if (darkModeEnabled) {
-                toggleButton.innerHTML = "Switch to Light Mode";
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            if (isDarkMode) {
+                document.body.classList.remove('dark-mode');
             } else {
-                toggleButton.innerHTML = "Switch to Dark Mode";
+                document.body.classList.add('dark-mode');
             }
+            localStorage.setItem('darkMode', !isDarkMode);
+
+            // Update background shapes color
+            const shapes = document.querySelectorAll('.animated-bg .shape');
+            shapes.forEach(shape => {
+                shape.style.backgroundColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            });
         }
 
-        // Load game data on page load
-        window.onload = loadGameData;
+        // Load saved dark mode state
+        if (localStorage.getItem('darkMode') === 'true') {
+            toggleDarkMode();
+        }
+
+        // Initialize game
+        window.onload = () => {
+            loadGameData();
+            createAnimatedBackground();
+        };
     </script>
 </body>
 </html>
